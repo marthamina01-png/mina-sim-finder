@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mina's SIM Deal Finder 📱</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4ff;color:#1a1a2e;min-height:100vh}
+
+/* HEADER */
+header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#fff;padding:28px 28px 22px;text-align:center;position:relative}
+header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#e94560,#f5a623,#2ecc71,#3498db)}
+.mina-title{font-size:2rem;font-weight:900;letter-spacing:-0.5px}
+.mina-title span{background:linear-gradient(135deg,#e94560,#f5a623);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+header p{margin-top:6px;opacity:.8;font-size:.88rem}
+.badges{margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 14px;font-size:.73rem;font-weight:700}
+
+/* NETWORK BRAND COLOURS */
+.ee-col{color:#00b5e2}
+.o2-col{color:#0019a5}
+.voda-col{color:#e60000}
+.ee-bg{background:#e8f8fd;border-left:4px solid #00b5e2}
+.o2-bg{background:#e8eafa;border-left:4px solid #0019a5}
+.voda-bg{background:#fde8e8;border-left:4px solid #e60000}
+
+/* TABS */
+.tabs{display:flex;background:#fff;border-bottom:2px solid #e8ecff;overflow-x:auto}
+.tab{padding:13px 20px;font-size:.83rem;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;color:#888;transition:all .2s}
+.tab.active{color:#0f3460;border-bottom-color:#e94560}
+.tab:hover{color:#0f3460}
+
+/* PANELS */
+.panel{display:none}
+.panel.active{display:block}
+
+/* CONTROLS */
+.controls{background:#fff;padding:16px 28px;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;border-bottom:2px solid #e8ecff;box-shadow:0 2px 8px rgba(15,52,96,.06)}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:.7rem;font-weight:800;color:#0f3460;text-transform:uppercase;letter-spacing:.5px}
+.fg select,.fg input[type=range]{border:2px solid #e0e4ff;border-radius:8px;padding:7px 10px;font-size:.83rem;color:#1a1a2e;background:#f8f9ff;min-width:130px}
+.fg select:focus{outline:none;border-color:#e94560}
+.bv{font-weight:800;color:#e94560;font-size:.88rem}
+
+/* SUMMARY BAR */
+.summary{background:#fff;padding:12px 28px;display:flex;gap:24px;border-bottom:1px solid #e8ecff;flex-wrap:wrap;align-items:center}
+.stat .num{font-size:1.35rem;font-weight:900;color:#0f3460}
+.stat .lbl{font-size:.67rem;color:#999;text-transform:uppercase;letter-spacing:.4px}
+
+main{padding:22px 28px;max-width:1400px;margin:0 auto}
+
+/* NETWORK HERO CARDS */
+.network-heroes{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:28px}
+.hero{border-radius:16px;padding:22px;color:#fff;position:relative;overflow:hidden}
+.hero.ee{background:linear-gradient(135deg,#006e8a,#00b5e2)}
+.hero.o2{background:linear-gradient(135deg,#00007a,#0019a5)}
+.hero.voda{background:linear-gradient(135deg,#a00000,#e60000)}
+.hero h3{font-size:1.3rem;font-weight:900;margin-bottom:4px}
+.hero .hero-tag{font-size:.7rem;opacity:.8;margin-bottom:14px;font-weight:600}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hs{background:rgba(255,255,255,.15);border-radius:8px;padding:8px 10px}
+.hs-label{font-size:.62rem;opacity:.75;text-transform:uppercase;letter-spacing:.3px;font-weight:600}
+.hs-val{font-size:.9rem;font-weight:800;margin-top:2px}
+.hero-badge{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-size:.68rem;font-weight:700}
+.hero-warn{margin-top:12px;background:rgba(255,255,255,.15);border-radius:8px;padding:7px 10px;font-size:.72rem;opacity:.9}
+
+/* DEAL CARDS */
+.sec-title{font-size:.98rem;font-weight:800;margin-bottom:14px;color:#1a1a2e;display:flex;align-items:center;gap:8px}
+.cnt{background:#0f3460;color:#fff;border-radius:20px;padding:2px 10px;font-size:.7rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;margin-bottom:30px}
+.card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(15,52,96,.08);border:2px solid #f0f0f0;transition:all .2s;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,52,96,.14)}
+.card.ee-card{border-top:4px solid #00b5e2}
+.card.o2-card{border-top:4px solid #0019a5}
+.card.voda-card{border-top:4px solid #e60000}
+.card.top{box-shadow:0 4px 16px rgba(233,69,96,.2)}
+.card.top::before{content:'⭐ TOP PICK';position:absolute;top:0;right:0;background:linear-gradient(135deg,#e94560,#f5a623);color:#fff;font-size:.6rem;font-weight:800;padding:4px 10px;border-bottom-left-radius:10px;letter-spacing:.4px}
+
+.ch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.nn{font-size:1rem;font-weight:800}
+.plan-name{font-size:.72rem;color:#888;margin-top:2px}
+.nw-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.ee-dot{background:#00b5e2}.o2-dot{background:#0019a5}.voda-dot{background:#e60000}
+.pb{text-align:right}
+.price{font-size:1.5rem;font-weight:900;line-height:1}
+.price.ee-col{color:#006e8a}.price.o2-col{color:#0019a5}.price.voda-col{color:#c00}
+.ppm{font-size:.65rem;color:#999}
+.fp{font-size:.75rem;font-weight:700;padding:2px 7px;border-radius:5px;margin-top:3px;display:inline-block}
+.fp.frozen{background:#eef9f0;color:#2d9a5f}
+.fp.rises{background:#fff0f0;color:#c0392b}
+.famsave{font-size:.73rem;font-weight:700;color:#764ba2;background:#f5f0ff;padding:2px 7px;border-radius:5px;margin-top:3px;display:inline-block}
+
+.specs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:11px}
+.si{background:#f8f9ff;border-radius:6px;padding:6px 8px}
+.sl{font-size:.62rem;color:#999;text-transform:uppercase;letter-spacing:.3px;font-weight:600}
+.sv{font-size:.8rem;font-weight:700;color:#1a1a2e;margin-top:1px}
+
+.tags{margin-bottom:11px}
+.tag{display:inline-block;font-size:.65rem;font-weight:600;background:#eef9f0;color:#2d9a5f;border-radius:5px;padding:2px 7px;margin:2px;border:1px solid #c3ecd1}
+.tag.warn{background:#fff8e1;color:#b07d00;border-color:#fde68a}
+.tag.bad{background:#fff0f0;color:#c0392b;border-color:#fcc}
+
+.scores{margin-bottom:11px}
+.sb{margin-bottom:4px}
+.sl2{font-size:.65rem;color:#888;font-weight:600;display:flex;justify-content:space-between;margin-bottom:2px}
+.bt{background:#f0f0f0;border-radius:99px;height:5px}
+.bf.ee-bar{background:linear-gradient(90deg,#006e8a,#00b5e2)}
+.bf.o2-bar{background:linear-gradient(90deg,#00007a,#0019a5)}
+.bf.voda-bar{background:linear-gradient(90deg,#a00000,#e60000)}
+.bf{height:5px;border-radius:99px;transition:width .5s ease}
+
+.desc{font-size:.73rem;color:#666;line-height:1.5;margin-bottom:11px}
+.cta{display:block;width:100%;padding:9px;border-radius:8px;color:#fff;font-weight:700;font-size:.82rem;text-decoration:none;text-align:center;border:none;cursor:pointer;transition:opacity .2s}
+.cta.ee-btn{background:linear-gradient(135deg,#006e8a,#00b5e2)}
+.cta.o2-btn{background:linear-gradient(135deg,#00007a,#0019a5)}
+.cta.voda-btn{background:linear-gradient(135deg,#a00000,#e60000)}
+.cta:hover{opacity:.85}
+
+/* COMPARE TABLE */
+.twrap{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(15,52,96,.08);overflow-x:auto;margin-bottom:28px}
+table{width:100%;border-collapse:collapse;min-width:900px}
+thead{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff}
+th{padding:11px 13px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;text-align:left;white-space:nowrap}
+td{padding:10px 13px;border-bottom:1px solid #f0f0f0;font-size:.8rem;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.tr-ee td:first-child{border-left:4px solid #00b5e2}
+.tr-o2 td:first-child{border-left:4px solid #0019a5}
+.tr-voda td:first-child{border-left:4px solid #e60000}
+.chk{color:#2d9a5f;font-weight:800}
+.crs{color:#e55}
+.sc{font-weight:800;color:#0f3460}
+.freeze{color:#2d9a5f;font-size:.73rem;font-weight:700}
+.rise{color:#c0392b;font-size:.73rem;font-weight:700}
+
+/* PLANNER */
+.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;margin-bottom:24px}
+.member-card{background:#fff;border-radius:13px;padding:17px;box-shadow:0 2px 10px rgba(15,52,96,.07)}
+.mh{display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.mi{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.mt{font-size:.9rem;font-weight:800}
+.ms{font-size:.7rem;color:#888}
+select.msel{width:100%;border:2px solid #e0e4ff;border-radius:8px;padding:8px 10px;font-size:.8rem;color:#1a1a2e;background:#f8f9ff;margin-bottom:8px}
+select.msel:focus{outline:none;border-color:#e94560}
+.mres{background:#f8f9ff;border-radius:7px;padding:9px;font-size:.75rem;color:#444;line-height:1.6}
+.mres strong{color:#0f3460}
+
+/* TOTAL */
+.total-box{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff;border-radius:13px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.tl{font-size:.82rem;opacity:.8}
+.tn{font-size:1.8rem;font-weight:900}
+.ts{font-size:.75rem;opacity:.7;margin-top:2px}
+.highlight{color:#f5a623}
+
+/* INFO */
+.info-wrap{background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(15,52,96,.07);margin-bottom:24px}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:13px;margin-top:12px}
+.ic{background:#f8f9ff;border-radius:9px;padding:13px;border-left:4px solid #0f3460}
+.ic h4{font-size:.8rem;font-weight:800;color:#0f3460;margin-bottom:5px}
+.ic p{font-size:.74rem;color:#555;line-height:1.5}
+.ic a{color:#e94560}
+
+.tip{background:#fff8e1;border-left:4px solid #f5a623;border-radius:8px;padding:12px 15px;margin-bottom:16px;font-size:.8rem;color:#7a5500;line-height:1.6}
+.tip strong{color:#5c3e00}
+.no-results{grid-column:1/-1;text-align:center;padding:40px;color:#999;font-size:.88rem}
+
+/* NETWORK GUIDE CARDS */
+.nw-guide{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:24px}
+.ngc{border-radius:14px;padding:20px}
+.ngc h3{font-size:1rem;font-weight:900;margin-bottom:10px}
+.ngc ul{list-style:none;font-size:.78rem;line-height:1.8}
+.ngc ul li::before{content:"→ ";font-weight:700}
+
+footer{text-align:center;padding:18px;color:#aaa;font-size:.73rem}
+@media(max-width:700px){.network-heroes,.nw-guide{grid-template-columns:1fr}.hero{margin-bottom:4px}header .mina-title{font-size:1.4rem}main{padding:14px}.controls{padding:14px}.summary{padding:12px 14px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="mina-title">📱 <span>Mina's</span> SIM Deal Finder</div>
+  <p>Vodafone · O2 · EE — 12-Month Contracts · Family of 4 · Croydon, England</p>
+  <div class="badges">
+    <span class="badge">🔄 May 2026</span>
+    <span class="badge">📅 12-Month Focus</span>
+    <span class="badge">⚠️ Price Rise Alerts</span>
+    <span class="badge">👨‍👩‍👧‍👦 Family of 4</span>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('overview','this')">🏠 Network Overview</div>
+  <div class="tab" onclick="showTab('deals','this')">📋 All Deals</div>
+  <div class="tab" onclick="showTab('compare','this')">📊 Compare Table</div>
+  <div class="tab" onclick="showTab('planner','this')">👨‍👩‍👧‍👦 Family Planner</div>
+  <div class="tab" onclick="showTab('guide','this')">🧠 Buying Guide</div>
+</div>
+
+<!-- OVERVIEW TAB -->
+<div id="tab-overview" class="panel active">
+  <main>
+    <div class="tip">⚠️ <strong>Important for 12-month contracts:</strong> All three major networks — EE, O2 and Vodafone — include <strong>mid-contract price rises</strong>. EE raises by £2.50/mo each March. O2 raises by £2.50/mo each April. Vodafone raises by £1.80/mo each April. Over 12 months this adds real cost — see below.</div>
+
+    <div class="sec-title">The Big Three — At a Glance</div>
+    <div class="network-heroes">
+
+      <div class="hero ee">
+        <span class="hero-badge">🏆 Best Coverage</span>
+        <h3>EE</h3>
+        <div class="hero-tag">Part of BT Group · Own Network</div>
+        <div class="hero-stats">
+          <div class="hs"><div class="hs-label">SIM-Only From</div><div class="hs-val">~£18/mo</div></div>
+          <div class="hs"><div class="hs-label">Unlimited From</div><div class="hs-val">~£28/mo</div></div>
+          <div class="hs"><div class="hs-label">4G Coverage</div><div class="hs-val">99%+ UK</div></div>
+          <div class="hs"><div class="hs-label">5G Locations</div><div class="hs-val">1,000+</div></div>
+          <div class="hs"><div class="hs-label">4 SIMs From</div><div class="hs-val">~£72/mo</div></div>
+          <div class="hs"><div class="hs-label">Multi-Line Disc.</div><div class="hs-val">£10 off</div></div>
+        </div>
+        <div class="hero-warn">⚠️ Price rises £2.50/mo every March · EU roaming charged extra (£2.38/day) · Perks: Apple Music, Netflix, TNT Sports</div>
+      </div>
+
+      <div class="hero o2">
+        <span class="hero-badge">🎟️ Best Perks</span>
+        <h3>O2</h3>
+        <div class="hero-tag">Part of Virgin Media O2 · Own Network</div>
+        <div class="hero-stats">
+          <div class="hs"><div class="hs-label">SIM-Only From</div><div class="hs-val">~£15/mo</div></div>
+          <div class="hs"><div class="hs-label">Unlimited From</div><div class="hs-val">~£22/mo</div></div>
+          <div class="hs"><div class="hs-label">4G Coverage</div><div class="hs-val">99% UK</div></div>
+          <div class="hs"><div class="hs-label">EU Roaming</div><div class="hs-val">25GB free</div></div>
+          <div class="hs"><div class="hs-label">4 SIMs From</div><div class="hs-val">~£60/mo</div></div>
+          <div class="hs"><div class="hs-label">Best for</div><div class="hs-val">Rural signal</div></div>
+        </div>
+        <div class="hero-warn">⚠️ Price rises £2.50/mo every April · Perks: O2 Priority tickets, Disney+, Amazon Prime, restaurant deals</div>
+      </div>
+
+      <div class="hero voda">
+        <span class="hero-badge">🌍 Best Roaming</span>
+        <h3>Vodafone</h3>
+        <div class="hero-tag">Own Network · Merged with Three</div>
+        <div class="hero-stats">
+          <div class="hs"><div class="hs-label">SIM-Only From</div><div class="hs-val">~£15/mo</div></div>
+          <div class="hs"><div class="hs-label">Unlimited From</div><div class="hs-val">~£20/mo</div></div>
+          <div class="hs"><div class="hs-label">4G Coverage</div><div class="hs-val">99% UK</div></div>
+          <div class="hs"><div class="hs-label">Roam Zones</div><div class="hs-val">50+ countries</div></div>
+          <div class="hs"><div class="hs-label">4 SIMs From</div><div class="hs-val">~£60/mo</div></div>
+          <div class="hs"><div class="hs-label">Broadband disc.</div><div class="hs-val">Available</div></div>
+        </div>
+        <div class="hero-warn">⚠️ Price rises £1.80/mo every April · EU roaming £2.25/day (Zone B) · Perks: Amazon Prime 12mo, VeryMe rewards, Spotify</div>
+      </div>
+    </div>
+
+    <div class="sec-title">Quick Verdict — Which is Best for Your Family?</div>
+    <div class="info-grid" style="margin-bottom:24px">
+      <div class="ic ee-bg"><h4 class="ee-col">✅ Choose EE if…</h4><p>You want the <strong>absolute best signal</strong> and 5G coverage in Croydon. You stream a lot and need reliability. You'd use perks like Apple Music or Netflix. You're also a BT broadband customer (bundle discount available).</p></div>
+      <div class="ic o2-bg"><h4 class="o2-col">✅ Choose O2 if…</h4><p>You want <strong>great perks</strong> — O2 Priority gives early concert tickets and family discounts. Strong rural coverage if you travel outside cities. EU roaming (25GB) included free. Best customer service reputation of the three.</p></div>
+      <div class="ic voda-bg"><h4 class="voda-col">✅ Choose Vodafone if…</h4><p>You <strong>travel abroad regularly</strong> — 50+ roam-free countries is the best of the three. Amazon Prime included free for 12 months. Save more if you bundle with Vodafone broadband. VeryMe app has regular high-street discounts.</p></div>
+      <div class="ic" style="border-left-color:#f5a623"><h4 style="color:#b07d00">⚠️ Watch Out For…</h4><p>All three networks <strong>raise prices mid-contract</strong>. EE & O2 add £2.50/mo, Vodafone adds £1.80/mo each April. On 4 SIMs that's up to £10/mo extra you didn't budget for. Always ask: "What is the exact rise amount?" before signing.</p></div>
+    </div>
+  </main>
+</div>
+
+<!-- DEALS TAB -->
+<div id="tab-deals" class="panel">
+  <div class="controls">
+    <div class="fg"><label>Network</label>
+      <select id="netFilter" onchange="renderDeals()">
+        <option value="all">All Three</option>
+        <option value="EE">EE Only</option>
+        <option value="O2">O2 Only</option>
+        <option value="Vodafone">Vodafone Only</option>
+      </select>
+    </div>
+    <div class="fg"><label>Sort By</label>
+      <select id="sortBy" onchange="renderDeals()">
+        <option value="score">Best Overall</option>
+        <option value="price">Lowest Price</option>
+        <option value="data">Most Data</option>
+        <option value="coverage">Best Coverage</option>
+      </select>
+    </div>
+    <div class="fg"><label>Max Budget / SIM</label>
+      <input type="range" id="budget" min="10" max="40" value="40" step="1" oninput="updateBudget()">
+      <span class="bv" id="bvlbl">Up to £40/mo</span>
+    </div>
+    <div class="fg"><label>Min Data</label>
+      <select id="minData" onchange="renderDeals()">
+        <option value="0">Any</option>
+        <option value="10">10GB+</option>
+        <option value="30">30GB+</option>
+        <option value="100">Unlimited only</option>
+      </select>
+    </div>
+    <div class="fg"><label>EU Roaming Inc.</label>
+      <select id="roamFilter" onchange="renderDeals()">
+        <option value="all">Any</option>
+        <option value="yes">Must Include</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="stat"><div class="num" id="s-deals">9</div><div class="lbl">Deals Shown</div></div>
+    <div class="stat"><div class="num" id="s-cheap">—</div><div class="lbl">Cheapest/SIM</div></div>
+    <div class="stat"><div class="num" id="s-family">—</div><div class="lbl">Best 4-SIM Total</div></div>
+    <div class="stat"><div class="num" id="s-annual">—</div><div class="lbl">Annual Cost (4x)</div></div>
+    <div class="stat"><div class="num">4</div><div class="lbl">SIMs Needed</div></div>
+  </div>
+
+  <main>
+    <div class="tip">💡 <strong>Tip:</strong> Remember the price rise adds to your actual annual spend. A £22/mo O2 plan actually costs you ~£24.50/mo after the April rise. Factor this into your budget!</div>
+    <div class="sec-title">12-Month SIM-Only Deals <span class="cnt" id="cnt">9 deals</span></div>
+    <div class="grid" id="cardsGrid"></div>
+  </main>
+</div>
+
+<!-- COMPARE TAB -->
+<div id="tab-compare" class="panel">
+  <main>
+    <div class="sec-title" style="margin-top:8px">📊 Full Side-by-Side Comparison</div>
+    <div class="twrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Network</th>
+            <th>Plan</th>
+            <th>Price/mo</th>
+            <th>4 SIMs/mo</th>
+            <th>Annual (4x)</th>
+            <th>Real Cost*</th>
+            <th>Data</th>
+            <th>5G</th>
+            <th>Price Rise</th>
+            <th>EU Roaming</th>
+            <th>eSIM</th>
+            <th>Perks</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <p style="font-size:.73rem;color:#888;margin-bottom:24px">*Real Cost = estimated actual annual cost per SIM including mid-contract price rise (typically applied ~6 months in, so ~half the year at higher price)</p>
+
+    <div class="info-wrap">
+      <div class="sec-title" style="margin-bottom:10px">💰 True Annual Cost Calculator</div>
+      <p style="font-size:.8rem;color:#666;margin-bottom:14px">Because all three networks raise prices mid-year, your actual annual spend is higher than the advertised price × 12. Here's how it works for a family of 4:</p>
+      <div class="info-grid">
+        <div class="ic ee-bg"><h4 class="ee-col">EE Example (£28/mo unlimited)</h4><p>6 months @ £28 = £168<br>6 months @ £30.50 = £183<br><strong>Real annual cost per SIM: £351</strong><br>4 SIMs = <strong>£1,404/yr</strong></p></div>
+        <div class="ic o2-bg"><h4 class="o2-col">O2 Example (£22/mo unlimited)</h4><p>6 months @ £22 = £132<br>6 months @ £24.50 = £147<br><strong>Real annual cost per SIM: £279</strong><br>4 SIMs = <strong>£1,116/yr</strong></p></div>
+        <div class="ic voda-bg"><h4 class="voda-col">Vodafone Example (£20/mo unlimited)</h4><p>6 months @ £20 = £120<br>6 months @ £21.80 = £130.80<br><strong>Real annual cost per SIM: £250.80</strong><br>4 SIMs = <strong>£1,003/yr</strong></p></div>
+        <div class="ic" style="border-left-color:#f5a623"><h4 style="color:#b07d00">📌 Key Takeaway</h4><p>Always ask the network: <strong>"What is the exact price rise amount?"</strong> Per Ofcom rules (from Jan 2025), all networks must show this in £ and pence at point of sale — so demand to see it before signing.</p></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- FAMILY PLANNER TAB -->
+<div id="tab-planner" class="panel">
+  <main>
+    <div class="sec-title" style="margin-top:8px">👨‍👩‍👧‍👦 Build Your Family Plan</div>
+    <p style="font-size:.8rem;color:#666;margin-bottom:18px">Assign a deal to each family member. You don't all need to be on the same network — mix and match to get the best value for each person's usage.</p>
+    <div class="member-grid" id="memberGrid"></div>
+    <div class="total-box" id="totalBox">
+      <div>
+        <div class="tl">Estimated Monthly Total (4 SIMs)</div>
+        <div class="tn" id="totalMonthly">£0<span style="font-size:1rem">/mo</span></div>
+        <div class="ts" id="totalAnnual">£0/year (before price rises)</div>
+      </div>
+      <div style="text-align:right">
+        <div class="tl">After price rises (~6 months in)</div>
+        <div class="tn highlight" id="realTotal">£0<span style="font-size:1rem">/mo</span></div>
+        <div class="ts" id="realAnnual">Check T&Cs for exact rise amounts</div>
+      </div>
+    </div>
+    <div class="tip">💡 <strong>Family tip:</strong> All three networks allow you to have multiple SIMs on separate accounts. There's no forced "family plan" — but Vodafone offers broadband bundle discounts, and EE gives £10 off when you add multiple lines with a device contract.</div>
+  </main>
+</div>
+
+<!-- GUIDE TAB -->
+<div id="tab-guide" class="panel">
+  <main>
+    <div class="nw-guide" style="margin-top:8px">
+      <div class="ngc" style="background:#e8f8fd;border-top:4px solid #00b5e2">
+        <h3 class="ee-col">📶 EE — Full Profile</h3>
+        <ul>
+          <li>Best 5G & 4G coverage in UK</li>
+          <li>SIM-only 12-mo from ~£18/mo</li>
+          <li>Unlimited from ~£28/mo</li>
+          <li>Price rises £2.50/mo each March</li>
+          <li>EU roaming: £2.38/day extra</li>
+          <li>Perks: Apple Music, Netflix, TNT Sports</li>
+          <li>Multi-line: £10 off with device</li>
+          <li>eSIM: ✅ supported</li>
+          <li>Stay Connected Data (throttled fallback)</li>
+          <li>Best for: coverage-first families</li>
+        </ul>
+      </div>
+      <div class="ngc" style="background:#e8eafa;border-top:4px solid #0019a5">
+        <h3 class="o2-col">⭕ O2 — Full Profile</h3>
+        <ul>
+          <li>99% 4G, strong rural signal</li>
+          <li>SIM-only 12-mo from ~£15/mo</li>
+          <li>Unlimited from ~£22/mo</li>
+          <li>Price rises £2.50/mo each April</li>
+          <li>EU roaming: 25GB free (fair use)</li>
+          <li>Perks: O2 Priority, Disney+, Amazon</li>
+          <li>WiFi Extra backup connection</li>
+          <li>eSIM: ✅ supported</li>
+          <li>Best customer service reputation</li>
+          <li>Best for: perks & rural coverage</li>
+        </ul>
+      </div>
+      <div class="ngc" style="background:#fde8e8;border-top:4px solid #e60000">
+        <h3 class="voda-col">🔴 Vodafone — Full Profile</h3>
+        <ul>
+          <li>Strong 4G, growing 5G (now merged with Three)</li>
+          <li>SIM-only 12-mo from ~£15/mo</li>
+          <li>Unlimited from ~£20/mo</li>
+          <li>Price rises £1.80/mo each April</li>
+          <li>EU roaming: Zone B £2.25/day, 50+ countries</li>
+          <li>Perks: Amazon Prime 12mo, Spotify, VeryMe</li>
+          <li>Broadband bundle discount available</li>
+          <li>eSIM: ✅ supported</li>
+          <li>Smallest price rise of the three</li>
+          <li>Best for: frequent travellers & broadband bundle</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="info-wrap">
+      <div class="sec-title" style="margin-bottom:12px">✅ Before You Sign — 10-Point Checklist</div>
+      <div class="info-grid">
+        <div class="ic"><h4>1️⃣ Get the Price Rise in Writing</h4><p>Ask: "What is my price in month 7 after the April rise?" Ofcom rules (Jan 2025) require networks to show this in £/pence at point of sale.</p></div>
+        <div class="ic"><h4>2️⃣ Check Croydon Coverage</h4><p>Visit <a href="https://mastdata.com" target="_blank">mastdata.com</a> and enter your postcode. EE is typically strongest in South London for 5G.</p></div>
+        <div class="ic"><h4>3️⃣ Ask About EU Roaming</h4><p>O2 includes 25GB free. EE charges £2.38/day. Vodafone charges £2.25/day (Zone B). Critical for family holidays to Europe.</p></div>
+        <div class="ic"><h4>4️⃣ Check Perks You'll Actually Use</h4><p>EE Netflix/Apple Music only worth it if you'd pay for it anyway. O2 Priority is genuinely useful for concert families. Vodafone Amazon Prime = £9/mo value free.</p></div>
+        <div class="ic"><h4>5️⃣ Ask About Multi-Line</h4><p>EE: £10 off SIM plans taken with a device. Vodafone: broadband bundle discounts. O2: check for family add-on deals at point of sale.</p></div>
+        <div class="ic"><h4>6️⃣ Understand Early Exit</h4><p>All three charge remaining months if you cancel early. Some discount by a small percentage. Ask for the exact exit fee formula before signing.</p></div>
+        <div class="ic"><h4>7️⃣ Confirm eSIM</h4><p>All three support eSIM. Ask at checkout — saves waiting for physical SIM. Requires iPhone XR+ or Samsung S20+.</p></div>
+        <div class="ic"><h4>8️⃣ Get PAC Code First</h4><p>Text <strong>PAC to 65075</strong> (free). Your current network replies in 60 seconds. Gives you 30 days to use it — and keeps negotiating options open.</p></div>
+        <div class="ic"><h4>9️⃣ After 12 Months</h4><p>Contract rolls monthly. Set a phone reminder for month 11 to compare again — you'll often get a better deal by calling retention.</p></div>
+        <div class="ic"><h4>🔟 Consider Haggling</h4><p>All three networks have retention teams. Call to say you're leaving — they often match competitor prices or add free perks to keep you.</p></div>
+      </div>
+    </div>
+
+    <div class="info-wrap">
+      <div class="sec-title" style="margin-bottom:12px">🔗 Where to Compare Live Prices</div>
+      <div class="info-grid">
+        <div class="ic"><h4>Uswitch</h4><p><a href="https://www.uswitch.com/mobiles/compare/sim_only_deals/" target="_blank">uswitch.com/mobiles</a> — Updated daily, filter by 12-month and network.</p></div>
+        <div class="ic"><h4>MoneySavingExpert</h4><p><a href="https://www.moneysavingexpert.com/cheap-mobile-finder/sim-only/" target="_blank">moneysavingexpert.com</a> — Shows true monthly cost after cashback deals.</p></div>
+        <div class="ic"><h4>MoneySuperMarket</h4><p><a href="https://www.moneysupermarket.com/mobile-phones/sim-only/" target="_blank">moneysupermarket.com</a> — Easy filtering by network and contract length.</p></div>
+        <div class="ic"><h4>Coverage Checker</h4><p><a href="https://mastdata.com" target="_blank">mastdata.com</a> — Enter your Croydon postcode for real street-level signal data.</p></div>
+        <div class="ic"><h4>EE Direct</h4><p><a href="https://ee.co.uk/mobile/sim-only-deals" target="_blank">ee.co.uk/mobile/sim-only-deals</a> — See current 12-month SIM plans direct.</p></div>
+        <div class="ic"><h4>O2 Direct</h4><p><a href="https://www.o2.co.uk/simonly" target="_blank">o2.co.uk/simonly</a> — Compare 12-month plans with O2 Priority details.</p></div>
+        <div class="ic"><h4>Vodafone Direct</h4><p><a href="https://www.vodafone.co.uk/sim-only" target="_blank">vodafone.co.uk/sim-only</a> — See current plans with roaming and bundle info.</p></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer>Built for Mina · Researched May 2026 · Prices indicative — always verify on provider websites · Not affiliated with EE, O2 or Vodafone · Always check current T&Cs for price rise terms before signing</footer>
+
+<script>
+const deals = [
+  // EE
+  {id:1,network:"EE",plan:"Essential 30GB",emoji:"📶",cls:"ee",price:18,dataGB:30,dataLabel:"30GB",
+   fiveG:true,euRoaming:false,esim:true,priceRise:2.50,riseMonth:"March",
+   perks:["UK #1 coverage","5G free","Stay Connected Data","eSIM"],
+   warns:["EU roaming £2.38/day","Price +£2.50/mo March"],
+   coverScore:97,priceScore:75,dataScore:78,reputScore:90,
+   url:"https://ee.co.uk/mobile/sim-only-deals",
+   desc:"EE's entry 12-month SIM. Best 5G and 4G coverage in the UK, particularly strong across South London and Croydon. Good if signal is your top priority.",
+   top:false},
+  {id:2,network:"EE",plan:"All Rounder Unlimited",emoji:"📶",cls:"ee",price:28,dataGB:999,dataLabel:"Unlimited",
+   fiveG:true,euRoaming:false,esim:true,priceRise:2.50,riseMonth:"March",
+   perks:["Fastest 5G UK","Apple Music OR Netflix OR TNT Sports","eSIM","Stay Connected Data","Multi-line disc."],
+   warns:["EU roaming £2.38/day","Price +£2.50/mo March","Most expensive"],
+   coverScore:97,priceScore:60,dataScore:100,reputScore:90,
+   url:"https://ee.co.uk/mobile/sim-only-deals",
+   desc:"EE's flagship plan. Unlimited data with a free streaming subscription (Apple Music, Netflix or TNT Sports). Best network in the UK but priciest of the three. Price rises £2.50/mo each March.",
+   top:false},
+  {id:3,network:"EE",plan:"Full Works Unlimited",emoji:"📶",cls:"ee",price:35,dataGB:999,dataLabel:"Unlimited",
+   fiveG:true,euRoaming:true,esim:true,priceRise:2.50,riseMonth:"March",
+   perks:["EU roaming included","2 streaming perks","Priority 5G in crowds","eSIM","Global roaming available"],
+   warns:["Price +£2.50/mo March","Most expensive EE plan"],
+   coverScore:97,priceScore:45,dataScore:100,reputScore:92,
+   url:"https://ee.co.uk/mobile/sim-only-deals",
+   desc:"EE's premium plan with EU roaming included and priority data in busy areas. Two Inclusive Extras (streaming subscriptions). Best for frequent travellers who want EE's superior coverage.",
+   top:false},
+  // O2
+  {id:4,network:"O2",plan:"Custom Plan 30GB",emoji:"⭕",cls:"o2",price:15,dataGB:30,dataLabel:"30GB",
+   fiveG:true,euRoaming:true,esim:true,priceRise:2.50,riseMonth:"April",
+   perks:["O2 Priority tickets","25GB EU roaming free","WiFi hotspots","eSIM","99% 4G coverage"],
+   warns:["Price +£2.50/mo April"],
+   coverScore:93,priceScore:82,dataScore:78,reputScore:91,
+   url:"https://www.o2.co.uk/simonly",
+   desc:"Great mid-range plan with EU roaming included (25GB free). O2 Priority gives early access to gig tickets and family dining deals. Best rural coverage of the three.",
+   top:true},
+  {id:5,network:"O2",plan:"Custom Plan Unlimited",emoji:"⭕",cls:"o2",price:22,dataGB:999,dataLabel:"Unlimited",
+   fiveG:true,euRoaming:true,esim:true,priceRise:2.50,riseMonth:"April",
+   perks:["O2 Priority tickets","25GB EU roaming free","Disney+ or Amazon Prime","eSIM","WiFi Extra backup"],
+   warns:["Price +£2.50/mo April"],
+   coverScore:93,priceScore:70,dataScore:100,reputScore:91,
+   url:"https://www.o2.co.uk/simonly",
+   desc:"O2's unlimited plan with streaming perks and free EU roaming. O2 Priority is genuinely valuable for families — early concert tickets, restaurant deals and exclusive offers.",
+   top:true},
+  {id:6,network:"O2",plan:"Custom Plan 100GB",emoji:"⭕",cls:"o2",price:18,dataGB:100,dataLabel:"100GB",
+   fiveG:true,euRoaming:true,esim:true,priceRise:2.50,riseMonth:"April",
+   perks:["O2 Priority tickets","25GB EU roaming free","eSIM","5G free"],
+   warns:["Price +£2.50/mo April"],
+   coverScore:93,priceScore:76,dataScore:90,reputScore:91,
+   url:"https://www.o2.co.uk/simonly",
+   desc:"100GB is plenty for most users. Solid mid-tier plan with EU roaming and O2 Priority included. Good balance of data, price and perks for everyday family use.",
+   top:false},
+  // Vodafone
+  {id:7,network:"Vodafone",plan:"SIM Plan 30GB",emoji:"🔴",cls:"voda",price:15,dataGB:30,dataLabel:"30GB",
+   fiveG:true,euRoaming:false,esim:true,priceRise:1.80,riseMonth:"April",
+   perks:["Vodafone 5G","VeryMe rewards","eSIM","Strong coverage"],
+   warns:["EU roaming £2.25/day Zone B","Price +£1.80/mo April"],
+   coverScore:87,priceScore:83,dataScore:78,reputScore:86,
+   url:"https://www.vodafone.co.uk/sim-only",
+   desc:"Vodafone's entry 12-month SIM. Reliable coverage (now merged with Three for even wider reach). VeryMe app has regular discounts. Smallest price rise of the big three.",
+   top:false},
+  {id:8,network:"Vodafone",plan:"Unlimited Lite",emoji:"🔴",cls:"voda",price:20,dataGB:999,dataLabel:"Unlimited",
+   fiveG:true,euRoaming:false,esim:true,priceRise:1.80,riseMonth:"April",
+   perks:["Amazon Prime 12mo free","50+ roam-free countries","VeryMe rewards","eSIM","Broadband bundle disc."],
+   warns:["EU roaming still £2.25/day (separate add-on needed)","Price +£1.80/mo April"],
+   coverScore:87,priceScore:76,dataScore:100,reputScore:86,
+   url:"https://www.vodafone.co.uk/sim-only",
+   desc:"Unlimited data with 12 months Amazon Prime free (~£9/mo value). Vodafone has the lowest price rise of the three (£1.80/mo). Bundle with Vodafone broadband for extra savings.",
+   top:true},
+  {id:9,network:"Vodafone",plan:"Unlimited Max",emoji:"🔴",cls:"voda",price:25,dataGB:999,dataLabel:"Unlimited",
+   fiveG:true,euRoaming:true,esim:true,priceRise:1.80,riseMonth:"April",
+   perks:["EU & international roaming inc.","50+ countries free","Amazon Prime inc.","Spotify or YouTube Premium","eSIM"],
+   warns:["Price +£1.80/mo April","Most expensive Vodafone plan"],
+   coverScore:87,priceScore:65,dataScore:100,reputScore:87,
+   url:"https://www.vodafone.co.uk/sim-only",
+   desc:"Premium Vodafone plan with full international roaming and entertainment bundle. Best for families who travel beyond Europe. Roaming in 50+ countries with your UK allowance.",
+   top:false},
+];
+
+function overallScore(d){
+  const priceAdj = Math.max(0, d.priceScore - Math.round(d.priceRise * 3));
+  return Math.round(d.coverScore*.3 + priceAdj*.25 + d.dataScore*.2 + d.reputScore*.15 + (d.euRoaming?10:0));
+}
+
+function barClass(cls){return cls+'-bar'}
+
+function getFiltered(){
+  const budget=parseInt(document.getElementById('budget').value);
+  const minData=parseInt(document.getElementById('minData').value);
+  const net=document.getElementById('netFilter').value;
+  const roam=document.getElementById('roamFilter').value;
+  return deals.filter(d=>{
+    if(d.price>budget)return false;
+    if(minData===100&&d.dataGB<999)return false;
+    if(minData>0&&minData<100&&d.dataGB<minData&&d.dataGB<999)return false;
+    if(net!=='all'&&d.network!==net)return false;
+    if(roam==='yes'&&!d.euRoaming)return false;
+    return true;
+  });
+}
+
+function getSorted(arr){
+  const s=document.getElementById('sortBy').value;
+  return[...arr].sort((a,b)=>{
+    if(s==='score')return overallScore(b)-overallScore(a);
+    if(s==='price')return a.price-b.price;
+    if(s==='data')return b.dataGB-a.dataGB;
+    if(s==='coverage')return b.coverScore-a.coverScore;
+    return 0;
+  });
+}
+
+function renderDeals(){
+  const filtered=getSorted(getFiltered());
+  const grid=document.getElementById('cardsGrid');
+  grid.innerHTML='';
+  document.getElementById('cnt').textContent=filtered.length+' deals';
+  document.getElementById('s-deals').textContent=filtered.length;
+  if(!filtered.length){
+    grid.innerHTML='<div class="no-results">No deals match your filters — try adjusting the budget or removing filters.</div>';
+    ['s-cheap','s-family','s-annual'].forEach(id=>document.getElementById(id).textContent='—');
+    return;
+  }
+  const cheapest=Math.min(...filtered.map(d=>d.price));
+  document.getElementById('s-cheap').textContent='£'+cheapest;
+  document.getElementById('s-family').textContent='£'+(cheapest*4)+'/mo';
+  document.getElementById('s-annual').textContent='£'+(cheapest*4*12)+'/yr*';
+
+  filtered.forEach((d,i)=>{
+    const sc=overallScore(d);
+    const isTop=d.top&&i<3;
+    const realAnnual=(d.price*6+(d.price+d.priceRise)*6);
+    const c=document.createElement('div');
+    c.className=`card ${d.cls}-card${isTop?' top':''}`;
+    c.innerHTML=`
+      <div class="ch">
+        <div>
+          <div class="nn"><span class="nw-dot ${d.cls}-dot"></span>${d.network}</div>
+          <div class="plan-name">${d.plan}</div>
+        </div>
+        <div class="pb">
+          <div class="price ${d.cls}-col">£${d.price}</div>
+          <div class="ppm">per month / SIM</div>
+          <span class="fp rises">⚠ +£${d.priceRise}/mo ${d.riseMonth}</span><br>
+          <span class="famsave">4 SIMs = £${d.price*4}/mo</span>
+        </div>
+      </div>
+      <div class="specs">
+        <div class="si"><span class="sl">Data</span><span class="sv">${d.dataLabel}</span></div>
+        <div class="si"><span class="sl">5G</span><span class="sv">${d.fiveG?'✅ Free':'❌ No'}</span></div>
+        <div class="si"><span class="sl">EU Roaming</span><span class="sv">${d.euRoaming?'✅ Included':'⚠️ Extra charge'}</span></div>
+        <div class="si"><span class="sl">eSIM</span><span class="sv">${d.esim?'✅ Yes':'❌ No'}</span></div>
+        <div class="si"><span class="sl">4 SIMs/yr*</span><span class="sv">£${(realAnnual*4).toFixed(0)}</span></div>
+        <div class="si"><span class="sl">Price Rise</span><span class="sv" style="color:#c0392b">£${d.priceRise}/mo ${d.riseMonth}</span></div>
+      </div>
+      <div class="tags">${d.perks.map(p=>`<span class="tag">✓ ${p}</span>`).join('')}${d.warns.map(w=>`<span class="tag warn">⚠ ${w}</span>`).join('')}</div>
+      <div class="scores">
+        <div class="sb"><div class="sl2"><span>Overall Score</span><span>${sc}/100</span></div><div class="bt"><div class="bf ${barClass(d.cls)}" style="width:${sc}%"></div></div></div>
+        <div class="sb"><div class="sl2"><span>Coverage</span><span>${d.coverScore}</span></div><div class="bt"><div class="bf ${barClass(d.cls)}" style="width:${d.coverScore}%"></div></div></div>
+        <div class="sb"><div class="sl2"><span>Value for Money</span><span>${d.priceScore}</span></div><div class="bt"><div class="bf ${barClass(d.cls)}" style="width:${d.priceScore}%"></div></div></div>
+      </div>
+      <p class="desc">${d.desc}</p>
+      <a class="cta ${d.cls}-btn" href="${d.url}" target="_blank">View ${d.network} Deal →</a>`;
+    grid.appendChild(c);
+  });
+}
+
+function renderTable(){
+  const tbody=document.getElementById('tableBody');
+  tbody.innerHTML='';
+  getSorted(deals).forEach(d=>{
+    const sc=overallScore(d);
+    const realAnnual=(d.price*6+(d.price+d.priceRise)*6).toFixed(0);
+    const tr=document.createElement('tr');
+    tr.className=`tr-${d.cls}`;
+    tr.innerHTML=`
+      <td><strong><span class="nw-dot ${d.cls}-dot"></span>${d.network}</strong></td>
+      <td style="font-size:.75rem">${d.plan}</td>
+      <td><strong>£${d.price}</strong></td>
+      <td><strong>£${d.price*4}/mo</strong></td>
+      <td>£${d.price*4*12}/yr</td>
+      <td style="color:#c0392b;font-weight:700">£${(parseFloat(realAnnual)*4).toFixed(0)}/yr</td>
+      <td>${d.dataLabel}</td>
+      <td class="${d.fiveG?'chk':'crs'}">${d.fiveG?'✓':'✗'}</td>
+      <td><span class="rise">+£${d.priceRise}/mo<br>${d.riseMonth}</span></td>
+      <td class="${d.euRoaming?'chk':'crs'}" style="font-size:.75rem">${d.euRoaming?'✓ Included':'✗ Extra'}</td>
+      <td class="${d.esim?'chk':'crs'}">${d.esim?'✓':'✗'}</td>
+      <td style="font-size:.7rem">${d.perks[0]}<br>${d.perks[1]||''}</td>
+      <td class="sc">${sc}/100</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderPlanner(){
+  const members=[
+    {name:"Adult 1",sub:"Choose their ideal plan",icon:"👩",bg:"#e8f8fd"},
+    {name:"Adult 2",sub:"Choose their ideal plan",icon:"👨",bg:"#e8eafa"},
+    {name:"Child / Teen",sub:"Heavy streamer?",icon:"🧒",bg:"#fde8e8"},
+    {name:"Child / Other",sub:"Light user",icon:"👦",bg:"#fff8e1"},
+  ];
+  const g=document.getElementById('memberGrid');
+  g.innerHTML='';
+  members.forEach((m,i)=>{
+    const div=document.createElement('div');
+    div.className='member-card';
+    div.innerHTML=`
+      <div class="mh">
+        <div class="mi" style="background:${m.bg}">${m.icon}</div>
+        <div><div class="mt">${m.name}</div><div class="ms">${m.sub}</div></div>
+      </div>
+      <select class="msel" id="msel${i}" onchange="updateTotal()">
+        <option value="">— Choose a deal —</option>
+        ${deals.map(d=>`<option value="${d.id}">${d.network} ${d.plan} — £${d.price}/mo (${d.dataLabel})</option>`).join('')}
+      </select>
+      <div class="mres" id="mres${i}">Select a deal to see details.</div>`;
+    g.appendChild(div);
+  });
+}
+
+function updateTotal(){
+  let total=0,real=0;
+  for(let i=0;i<4;i++){
+    const sel=document.getElementById('msel'+i);
+    const res=document.getElementById('mres'+i);
+    if(sel&&sel.value){
+      const d=deals.find(x=>x.id==sel.value);
+      if(d){
+        total+=d.price;
+        real+=(d.price+d.priceRise);
+        res.innerHTML=`<strong>${d.network} ${d.plan}</strong><br>£${d.price}/mo · ${d.dataLabel} · ${d.fiveG?'5G ✅':''} · ${d.euRoaming?'EU roaming ✅':'EU roaming extra ⚠️'}<br><span style="color:#c0392b;font-size:.72rem">Price rises to £${(d.price+d.priceRise).toFixed(2)}/mo in ${d.riseMonth}</span>`;
+      }
+    } else if(res){
+      res.innerHTML='Select a deal to see details.';
+    }
+  }
+  document.getElementById('totalMonthly').innerHTML='£'+total+'<span style="font-size:1rem">/mo</span>';
+  document.getElementById('totalAnnual').textContent='£'+(total*12)+'/year (before price rises)';
+  document.getElementById('realTotal').innerHTML='£'+real+'<span style="font-size:1rem">/mo</span>';
+  document.getElementById('realAnnual').textContent='Estimated post-rise monthly cost (4 SIMs)';
+}
+
+function updateBudget(){
+  const v=document.getElementById('budget').value;
+  document.getElementById('bvlbl').textContent=v==40?'Up to £40/mo':'Up to £'+v+'/mo';
+  renderDeals();
+}
+
+function showTab(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>{
+    if(t.getAttribute('onclick')&&t.getAttribute('onclick').includes("'"+id+"'")){t.classList.add('active')}
+  });
+}
+
+renderDeals();
+renderTable();
+renderPlanner();
+</script>
+</body>
+</html>
